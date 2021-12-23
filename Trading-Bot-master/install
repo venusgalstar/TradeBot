@@ -1,0 +1,35 @@
+#!/usr/bin/env sh
+
+set -e
+
+echo "▶️  Preparing..."
+[ -d /tmp/freqtrade-manager ] || mkdir /tmp/freqtrade-manager
+[ -d /tmp/freqtrade-manager/install ] || mkdir /tmp/freqtrade-manager/install
+[ -d /tmp/freqtrade-manager/install/trading-bot ] || mkdir /tmp/freqtrade-manager/install/trading-bot
+
+echo "▶️  Downloading some required Docker images (wait some seconds/minutes while downloading)..."
+docker pull --quiet ph3nol/freqtrade:latest
+docker pull --quiet ph3nol/freqtrade-ui:latest
+docker pull --quiet ph3nol/freqtrade-manager:latest
+
+echo "▶️  Downloading/Installing Trading Bot..."
+if [ -d "/usr/local/bin" ]; then
+    BOT_SCRIPT_DESTINATION_PATH="/usr/local/bin/bot"
+elif [ -d "/usr/bin" ]; then
+    BOT_SCRIPT_DESTINATION_PATH="/usr/bin/bot"
+else
+    mkdir -p /usr/local/bin
+    BOT_SCRIPT_DESTINATION_PATH="/usr/local/bin/bot"
+fi
+curl -sSL -o ${BOT_SCRIPT_DESTINATION_PATH} https://raw.githubusercontent.com/Ph3nol/Trading-Bot/master/bot && chmod +x ${BOT_SCRIPT_DESTINATION_PATH}
+
+echo "▶️  Downloading needed Trading Bot scripts..."
+GITHUB_LAST_RELEASE_ENDPOINT="https://api.github.com/repos/Ph3nol/Trading-Bot/releases/latest"
+GITHUB_TAR_URL=$(curl -s "$GITHUB_LAST_RELEASE_ENDPOINT" | grep tarball_url | cut -d '"' -f 4)
+wget -qO /tmp/freqtrade-manager/install/trading-bot.tar.gz ${GITHUB_TAR_URL}
+tar -zxf /tmp/freqtrade-manager/install/trading-bot.tar.gz --directory /tmp/freqtrade-manager/install/trading-bot --strip 1
+rm -rf /tmp/freqtrade-manager/resources && mv /tmp/freqtrade-manager/install/trading-bot/resources /tmp/freqtrade-manager/resources
+rm -rf /tmp/freqtrade-manager/install
+
+echo ""
+echo "✅ Your Trading Bot is now ready! 🚀🔥"

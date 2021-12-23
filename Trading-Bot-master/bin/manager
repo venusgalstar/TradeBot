@@ -1,0 +1,38 @@
+#!/usr/bin/env php
+<?php
+
+define('MANAGER_PROJECT_DIRECTORY', __DIR__ . '/..');
+
+define('MANAGER_DIRECTORY', '/config');
+define('MANAGER_CONFIGS_DIRECTORY', MANAGER_DIRECTORY . '/configs');
+define('MANAGER_STRATEGIES_DIRECTORY', MANAGER_DIRECTORY . '/strategies');
+define('MANAGER_DATA_DIRECTORY', MANAGER_DIRECTORY . '/_data');
+define('MANAGER_INSTANCES_DIRECTORY', MANAGER_DIRECTORY . '/_instances');
+
+define('HOST_BOT_SCRIPT_PATH', $_ENV['HOST_BOT_SCRIPT_PATH'] ?? '/tmp');
+define('HOST_MANAGER_DIRECTORY', $_ENV['HOST_CONFIGURATION_DIRECTORY'] ?? '/tmp');
+define('HOST_MANAGER_CONFIGS_DIRECTORY', HOST_MANAGER_DIRECTORY . '/configs');
+define('HOST_MANAGER_STRATEGIES_DIRECTORY', HOST_MANAGER_DIRECTORY . '/strategies');
+define('HOST_MANAGER_DATA_DIRECTORY', HOST_MANAGER_DIRECTORY . '/_data');
+define('HOST_MANAGER_INSTANCES_DIRECTORY', HOST_MANAGER_DIRECTORY . '/_instances');
+
+require __DIR__.'/../vendor/autoload.php';
+
+use Manager\UI\Console\CronCommand;
+use Manager\UI\Console\TradeCommand;
+use Manager\UI\Console\BackTestCommand;
+use Symfony\Component\Console\Application;
+use Manager\UI\Console\InstanceStopCommand;
+use Manager\UI\Console\InstancesStatusCommand;
+use Manager\UI\Console\InstancesResetDataCommand;
+
+$application = new Application();
+
+$application->add(new InstancesStatusCommand());
+$application->add(new InstanceStopCommand());
+$application->add(new InstancesResetDataCommand());
+$application->add(new TradeCommand());
+$application->add(new CronCommand());
+$application->add(new BackTestCommand());
+
+$application->run();
